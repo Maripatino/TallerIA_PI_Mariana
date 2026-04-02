@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container">
+    <h1 class="mb-4">Sistema de Recomendación de Películas</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="recommendationPrompt" class="form-label">
+                Ingresa tu preferencia para recomendar una película:
+            </label>
+            <input type="text" class="form-control" id="recommendationPrompt" name="prompt"
+                   placeholder="Ejemplo: Película de la segunda guerra mundial"
+                   value="{{ prompt }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar Recomendación</button>
+    </form>
+
+    {% if recommended_movies %}
+    <div class="mt-4">
+        <h2>Películas Recomendadas</h2>
+        <div class="row">
+            {% for movie, similarity in recommended_movies %}
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <img src="{{ movie.image.url }}" class="card-img-top" alt="{{ movie.title }}">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">{{ movie.title }}</h5>
+                        <p class="card-text">{{ movie.description }}</p>
+                        <p class="card-text"><strong>Género:</strong> {{ movie.genre }}</p>
+                        <p class="card-text"><strong>Año:</strong> {{ movie.year }}</p>
+                        <p class="card-text"><strong>Similitud:</strong> {{ similarity|floatformat:2 }}</p>
+                        {% if movie.url %}
+                            <a href="{{ movie.url }}" class="btn btn-primary" target="_blank">Ver Película</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="alert alert-danger mt-3">
+        {{ error }}
+    </div>
+    {% endif %}
+</div>
+
+{% endblock content %}

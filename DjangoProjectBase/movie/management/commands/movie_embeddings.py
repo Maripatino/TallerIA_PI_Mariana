@@ -17,7 +17,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **kwargs):
-        # ✅ Load OpenAI API key desde openAI.env en el directorio base del proyecto
+        #  Load OpenAI API key desde openAI.env en el directorio base del proyecto
         # Usa multiple paths para asegurar que encuentra el archivo
         possible_paths = [
             'openAI.env',  # Desde el directorio actual (DjangoProjectBase)
@@ -48,7 +48,7 @@ class Command(BaseCommand):
         self.stdout.write(f"[OK] API key cargada correctamente (primeros 20 chars: {api_key[:20]}...)")
         client = OpenAI(api_key=api_key)
 
-        # ✅ Fetch all movies from the database
+        #  Fetch all movies from the database
         movies = Movie.objects.all()
         self.stdout.write(f"Found {movies.count()} movies in the database")
 
@@ -59,22 +59,22 @@ class Command(BaseCommand):
             )
             return np.array(response.data[0].embedding, dtype=np.float32)
 
-        # ✅ Iterate through movies and generate embeddings
+        #  Iterate through movies and generate embeddings
         count = 0
         for movie in movies:
             try:
                 emb = get_embedding(movie.description)
-                # ✅ Store embedding as binary in the database
+                #  Store embedding as binary in the database
                 movie.emb = emb.tobytes()
                 movie.save()
-                self.stdout.write(self.style.SUCCESS(f"[OK] Embedding stored for: {movie.title}"))
+                self.stdout.write(f" Embedding stored for movie ID: {movie.id}")
                 count += 1
             except Exception as e:
-                Dself.stderr.write(f"[ERROR] Failed to generate embedding for {movie.title}: {e}")
+                Dself.stderr.write(f" Failed to generate embedding for {movie.title}: {e}")
 
-        self.stdout.write(self.style.SUCCESS(f"[DONE] Finished generating embeddings for {count} movies"))
+        self.stdout.write(self.style.SUCCESS(f" Finished generating embeddings for {count} movies"))
 
-        # ✅ Show random movie embedding if requested
+        #  Show random movie embedding if requested
         if kwargs.get('show_random') or movies.exists():
             self._show_random_embedding(movies)
 
@@ -84,7 +84,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING("No movies found in database"))
             return
         
-        # ✅ Get a random movie
+        #  Get a random movie
         random_movie = random.choice(list(movies))
         self.stdout.write("\n" + "="*80)
         self.stdout.write(self.style.SUCCESS(f"[RANDOM MOVIE] {random_movie.title}"))
@@ -94,7 +94,7 @@ class Command(BaseCommand):
         self.stdout.write(f"[GENRE] {random_movie.genre}")
         self.stdout.write(f"[YEAR] {random_movie.year}")
         
-        # ✅ Convert binary embedding back to numpy array
+        #  Convert binary embedding back to numpy array
         if random_movie.emb:
             try:
                 embedding = np.frombuffer(random_movie.emb, dtype=np.float32)
@@ -105,7 +105,7 @@ class Command(BaseCommand):
                 self.stdout.write(f"[EMBEDDING] Min: {embedding.min():.6f}")
                 self.stdout.write(f"[EMBEDDING] Max: {embedding.max():.6f}")
                 
-                # ✅ Show first 20 embedding values
+                #  Show first 20 embedding values
                 self.stdout.write("\n[VALUES] First 20 Embedding Values:")
                 self.stdout.write("-" * 80)
                 for i in range(min(20, len(embedding))):
